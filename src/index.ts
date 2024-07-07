@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import user from "./routes/users";
 import posts from "./routes/posts";
+import { cors } from "hono/cors";
 
 const app = new Hono();
 
@@ -20,6 +21,8 @@ app.get("/", (c) => {
   `;
   return c.html(routes);
 });
+
+app.use("/api/*", cors());
 
 app.route("/", user);
 app.route("/", posts);

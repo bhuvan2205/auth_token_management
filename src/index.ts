@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import user from "./routes/users";
+import posts from "./routes/posts";
 
 const app = new Hono();
 
@@ -17,6 +18,7 @@ app.get("/", (c) => {
 });
 
 app.route("/", user);
+app.route("/", posts);
 
 export default {
   port: 8000,

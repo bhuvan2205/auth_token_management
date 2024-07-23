@@ -10,7 +10,10 @@ export const generateJwt = async (payload: {
   return token;
 };
 
-export const verifyJwt = async (token: string) => {
+export const verifyJwt = async (token?: string) => {
+  if (!token) {
+    return { payload: null, isValidToken: false };
+  }
   try {
     const payload = await verify(token, process.env.JWT_SECRET!);
     return { payload, isValidToken: true };

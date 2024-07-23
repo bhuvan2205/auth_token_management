@@ -54,11 +54,17 @@ export const createSessionHandler = async (c: Context) => {
 
   setCookie(c, "refreshToken", refreshToken, {
     secure: true,
-    maxAge: 100,
+    maxAge: 1000,
     httpOnly: true,
+    expires: new Date(Date.now() + 1000),
   });
 
-  return c.json({ sessionId: session?.id, email: session?.email, accessToken });
+  return c.json({
+    sessionId: session?.id,
+    email: session?.email,
+    accessToken,
+    refreshToken,
+  });
 };
 
 export const deleteSessionHandler = (c: Context) => {
@@ -75,9 +81,19 @@ export const deleteSessionHandler = (c: Context) => {
 };
 
 export const refreshTokenHandler = async (c: Context) => {
-  const token = getCookie(c, "refreshToken");
+  let token: string | undefined = "";
+  token = getCookie(c, "refreshToken");
 
-  const { isValidToken, payload } = await verifyJwt(token as string);
+  if (!token) {
+    const { refreshToken } = await c.req.json();
+    token = refreshToken;
+  }
+
+  if (!token) {
+    return c.json({ message: "Auth required" }, 401);
+  }
+
+  const { isValidToken, payload } = await verifyJwt(token);
 
   if (!isValidToken) {
     return c.json({ message: "Token expires" }, 403);
